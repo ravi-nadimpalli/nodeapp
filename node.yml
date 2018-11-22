@@ -21,6 +21,7 @@
     get_url:
       url: "https://deb.nodesource.com/setup_8.x"
       dest: "{{node_setup_folder}}/nodesource_setup.sh"
+      mode: '777'
 
   - name: "execute downloaded node setup shell script"
     shell: "{{node_setup_folder}}/nodesource_setup.sh"
