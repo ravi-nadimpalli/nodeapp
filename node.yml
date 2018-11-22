@@ -33,10 +33,10 @@
       name: nodejs
       state: present
 
-  - name: "installing build essentials"
-    apt: 
-      name: "build-essentials"
-      state: present
+#  - name: "installing build essentials"
+#    apt: 
+#      name: "build-essentials"
+#      state: present
 
   - name: "copy the code"
     template:
