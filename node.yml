@@ -1,0 +1,67 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: "update packages"
+    apt:
+      update_cache: yes
+
+- hosts: app
+  become: yes
+  vars:
+    node_setup_folder: /home/ansible/nodesetup
+  tasks: 
+  - name: "Create folder for node setup file"
+    file:
+      path: "{{node_setup_folder}}"
+      state: directory
+      mode: 0755
+
+  - name: "downloading node setup file"
+    get_url:
+      url: "https://deb.nodesource.com/setup_8.x"
+      dest: "{{node_setup_folder}}/nodesource_setup.sh"
+
+  - name: "execute downloaded node setup shell script"
+    shell: "{{node_setup_folder}}/nodesource_setup.sh"
+    args:
+      executable: /bin/bash
+    
+  - name: "installing nodejs"
+    apt:
+      name: nodejs
+      state: present
+
+  - name: "installing build essentials"
+    apt: 
+      name: "build-essentials"
+      state: present
+
+  - name: "copy the code"
+    template:
+      src: "templates/hello.js.j2"
+      dest: "{{node_setup_folder}}/hello.js"
+
+  - name: "installing pm2"
+    npm:
+      name: pm2
+      global: yes
+
+  - name: "starting the app"
+    command: "pm2 start {{node_setup_folder}}/hello.js"
+
+- hosts: web
+  become: yes
+  vars:
+    web_address: 34.215.134.91
+    app_address: 172.31.41.250
+  tasks:
+  - name: "installing nginx"
+    apt:
+      name: nginx
+      state: present
+
+  - name: "setting nginx as reverse proxy"
+    template:
+      src: "templates/default.j2"
+      dest: "/etc/nginx/sites-available/default"
